@@ -73,7 +73,7 @@ public class HttpResult<T> {
 
     @Override
     public String toString() {
-        return "NovateResponse{" +
+        return "HttpResult{" +
                 "code=" + code +
                 ", msg='" + msg + '\'' +
                 ", error='" + error + '\'' +

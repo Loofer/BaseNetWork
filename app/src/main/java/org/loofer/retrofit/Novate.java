@@ -8,9 +8,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
 import org.loofer.retrofit.config.ConfigLoader;
+import org.loofer.retrofit.cookie.CookieManager;
 import org.loofer.retrofit.cookie.SharedPrefsCookiePersistor;
 import org.loofer.retrofit.download.DownLoadCallBack;
 import org.loofer.retrofit.download.DownSubscriber;
+import org.loofer.retrofit.exception.FormatException;
 import org.loofer.retrofit.exception.RetrofitException;
 import org.loofer.retrofit.exception.ServerException;
 import org.loofer.retrofit.request.Request;
@@ -41,6 +43,7 @@ import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
@@ -217,14 +220,16 @@ public final class Novate {
      * @param <T>
      * @return
      */
-    public <T> Observable.Transformer<NovateResponse<T>, T> handleErrTransformer() {
+    public <T> Observable.Transformer<HttpResult<T>, T> handleErrTransformer() {
 
         if (exceptTransformer != null) return exceptTransformer;
 
         else return exceptTransformer = new Observable.Transformer() {
             @Override
             public Object call(Object observable) {
-                return ((Observable) observable)/*.map(new HandleFuc<T>())*/.onErrorResumeNext(new HttpResponseFunc<T>());
+                return ((Observable) observable)
+                        //.map(new HandleFuc<T>())
+                        .onErrorResumeNext(new HttpResponseFunc<T>());
             }
         };
     }
@@ -236,9 +241,9 @@ public final class Novate {
         }
     }
 
-    private class HandleFuc<T> implements Func1<NovateResponse<T>, T> {
+    private class HandleFuc<T> implements Func1<HttpResult<T>, T> {
         @Override
-        public T call(NovateResponse<T> response) {
+        public T call(HttpResult<T> response) {
             if (response == null || (response.getData() == null && response.getResult() == null)) {
                 throw new JsonParseException("后端数据不对");
             }
@@ -753,7 +758,7 @@ public final class Novate {
         private Executor callbackExecutor;
         private boolean validateEagerly;
         private Context context;
-        private NovateCookieManager cookieManager;
+        private CookieManager cookieManager;
         private Cache cache = null;
         private Proxy proxy;
         private File httpCacheDirectory;
@@ -982,9 +987,9 @@ public final class Novate {
          * Sets the handler that can accept cookies from incoming HTTP responses and provides cookies to
          * outgoing HTTP requests.
          * <p/>
-         * <p>If unset, {@linkplain NovateCookieManager#NO_COOKIES no cookies} will be accepted nor provided.
+         * <p>If unset, {@linkplain CookieManager#NO_COOKIES no cookies} will be accepted nor provided.
          */
-        public Builder cookieManager(NovateCookieManager cookie) {
+        public Builder cookieManager(CookieManager cookie) {
             if (cookie == null) throw new NullPointerException("cookieManager == null");
             this.cookieManager = cookie;
             return this;
@@ -1013,15 +1018,15 @@ public final class Novate {
          * Sets the handler that can accept cookies from incoming HTTP responses and provides cookies to
          * outgoing HTTP requests.
          * <p/>
-         * <p>If unset, {@linkplain NovateCookieManager#NO_COOKIES no cookies} will be accepted nor provided.
+         * <p>If unset, {@linkplain CookieManager#NO_COOKIES no cookies} will be accepted nor provided.
          */
         public Builder addSSL(String[] hosts, int[] certificates) {
             if (hosts == null) throw new NullPointerException("hosts == null");
             if (certificates == null) throw new NullPointerException("ids == null");
 
 
-            addSSLSocketFactory(NovateHttpsFactroy.getSSLSocketFactory(context, certificates));
-            addHostnameVerifier(NovateHttpsFactroy.getHostnameVerifier(hosts));
+            addSSLSocketFactory(RetrofitHttpsFactroy.getSSLSocketFactory(context, certificates));
+            addHostnameVerifier(RetrofitHttpsFactroy.getHostnameVerifier(hosts));
             return this;
         }
 
@@ -1124,7 +1129,7 @@ public final class Novate {
 
 
             if (httpCacheDirectory == null) {
-                httpCacheDirectory = new File(mContext.getCacheDir(), "Novate_Http_cache");
+                httpCacheDirectory = new File(mContext.getCacheDir(), "Http_cache");
             }
 
             if (isCache) {
@@ -1171,11 +1176,11 @@ public final class Novate {
              * Sets the handler that can accept cookies from incoming HTTP responses and provides cookies to
              * outgoing HTTP requests.
              *
-             * <p>If unset, {@link Novate NovateCookieManager#NO_COOKIES no cookies} will be accepted nor provided.
+             * <p>If unset, {@link Novate CookieManager#NO_COOKIES no cookies} will be accepted nor provided.
              */
             if (isCookie && cookieManager == null) {
                 //okhttpBuilder.cookieJar(new NovateCookieManger(context));
-                okhttpBuilder.cookieJar(new NovateCookieManager(new CookieCacheImpl(), new SharedPrefsCookiePersistor(context)));
+                okhttpBuilder.cookieJar(new CookieManager(new CookieCacheImpl(), new SharedPrefsCookiePersistor(context)));
 
             }
 
@@ -1251,7 +1256,7 @@ public final class Novate {
         }
 
         @Override
-        public void onError(java.lang.Throwable e) {
+        public void onError(Throwable e) {
             if (callBack != null) {
                 callBack.onError(e);
             }
@@ -1272,7 +1277,7 @@ public final class Novate {
                          *  Type finalNeedType = needChildType;
                          */
 
-                        NovateResponse<T> baseResponse = null;
+                        HttpResult<T> baseResponse = null;
 
                         if (new Gson().fromJson(jsStr, finalNeedType) == null) {
                             throw new NullPointerException();
@@ -1314,13 +1319,13 @@ public final class Novate {
      */
     public interface ResponseCallBack<T> {
 
-        public void onStart();
+        void onStart();
 
-        public void onCompleted();
+        void onCompleted();
 
-        public abstract void onError(java.lang.Throwable e);
+        void onError(java.lang.Throwable e);
 
-        public abstract void onSuccee(T response);
+        void onSuccee(T response);
 
     }
 }
