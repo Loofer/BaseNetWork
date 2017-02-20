@@ -3,13 +3,13 @@ package org.loofer.retrofit;
 
 import android.content.Context;
 
-import com.tamic.novate.config.ConfigLoader;
+import org.loofer.retrofit.config.ConfigLoader;
+
 
 /**
  * BaseResponse Data T
- * Created by Tamic on 2016-06-06.
  */
-public class NovateResponse<T> {
+public class HttpResult<T> {
     //结果码
     private int code = 1;
     /*错误信息:msg, error, message*/
