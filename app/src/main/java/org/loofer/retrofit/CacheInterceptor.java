@@ -4,8 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.tamic.novate.util.NetworkUtil;
-
 import java.io.IOException;
 
 import okhttp3.Interceptor;
@@ -14,7 +12,6 @@ import okhttp3.Response;
 
 /**
  * caheInterceptor
- * Created by Tamic on 2016-08-09.
  */
 public class CacheInterceptor implements Interceptor {
 

@@ -7,13 +7,14 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
+import org.loofer.retrofit.cache.CookieCacheImpl;
 import org.loofer.retrofit.config.ConfigLoader;
 import org.loofer.retrofit.cookie.CookieManager;
 import org.loofer.retrofit.cookie.SharedPrefsCookiePersistor;
 import org.loofer.retrofit.download.DownLoadCallBack;
 import org.loofer.retrofit.download.DownSubscriber;
+import org.loofer.retrofit.exception.ApiException;
 import org.loofer.retrofit.exception.FormatException;
-import org.loofer.retrofit.exception.RetrofitException;
 import org.loofer.retrofit.exception.ServerException;
 import org.loofer.retrofit.request.Request;
 import org.loofer.retrofit.utils.FileUtil;
@@ -76,7 +77,7 @@ import rx.schedulers.Schedulers;
  *
  * @author Tamic (skay5200@163.com)
  */
-public final class Novate {
+public final class Factory {
 
     private static Map<String, String> headers;
     private static Map<String, String> parameters;
@@ -101,10 +102,10 @@ public final class Novate {
     /**
      * Mandatory constructor for the Novate
      */
-    Novate(okhttp3.Call.Factory callFactory, String baseUrl, Map<String, String> headers,
-           Map<String, String> parameters, BaseApiService apiManager,
-           List<Converter.Factory> converterFactories, List<CallAdapter.Factory> adapterFactories,
-           Executor callbackExecutor, boolean validateEagerly) {
+    Factory(okhttp3.Call.Factory callFactory, String baseUrl, Map<String, String> headers,
+            Map<String, String> parameters, BaseApiService apiManager,
+            List<Converter.Factory> converterFactories, List<CallAdapter.Factory> adapterFactories,
+            Executor callbackExecutor, boolean validateEagerly) {
         this.callFactory = callFactory;
         this.baseUrl = baseUrl;
         this.headers = headers;
@@ -237,7 +238,7 @@ public final class Novate {
     private static class HttpResponseFunc<T> implements Func1<java.lang.Throwable, Observable<T>> {
         @Override
         public Observable<T> call(java.lang.Throwable t) {
-            return Observable.error(RetrofitException.handleException(t));
+            return Observable.error(ApiException.handleException(t));
         }
     }
 
@@ -1077,7 +1078,7 @@ public final class Novate {
          * Note: If neither {@link #client} nor {@link #callFactory} is called a default {@link
          * OkHttpClient} will be created and used.
          */
-        public Novate build() {
+        public Factory build() {
             if (baseUrl == null) {
                 throw new IllegalStateException("Base URL required.");
             }
@@ -1176,7 +1177,7 @@ public final class Novate {
              * Sets the handler that can accept cookies from incoming HTTP responses and provides cookies to
              * outgoing HTTP requests.
              *
-             * <p>If unset, {@link Novate CookieManager#NO_COOKIES no cookies} will be accepted nor provided.
+             * <p>If unset, {@link Factory CookieManager#NO_COOKIES no cookies} will be accepted nor provided.
              */
             if (isCookie && cookieManager == null) {
                 //okhttpBuilder.cookieJar(new NovateCookieManger(context));
@@ -1213,7 +1214,7 @@ public final class Novate {
              */
             apiManager = retrofit.create(BaseApiService.class);
 
-            return new Novate(callFactory, baseUrl, headers, parameters, apiManager, converterFactories, adapterFactories,
+            return new Factory(callFactory, baseUrl, headers, parameters, apiManager, converterFactories, adapterFactories,
                     callbackExecutor, validateEagerly);
         }
     }
@@ -1231,7 +1232,6 @@ public final class Novate {
         private Type finalNeedType;
 
         public NovateSubscriber(Context context, Type finalNeedType, ResponseCallBack<T> callBack) {
-            super(context);
             this.callBack = callBack;
 
             this.finalNeedType = finalNeedType;
@@ -1293,14 +1293,14 @@ public final class Novate {
                             String msg =
                                     baseResponse.getMsg() != null ? baseResponse.getMsg() : baseResponse.getError() != null ? baseResponse.getError() : baseResponse.getMessage() != null ? baseResponse.getMessage() : "api未知异常";
 
-                            ServerException serverException = new com.tamic.novate.exception.ServerException(baseResponse.getCode(), msg);
-                            callBack.onError(RetrofitException.handleException(serverException));
+                            ServerException serverException = new ServerException(baseResponse.getCode(), msg);
+                            callBack.onError(ApiException.handleException(serverException));
                         }
 
                     } catch (Exception e) {
                         e.printStackTrace();
                         if (callBack != null) {
-                            callBack.onError(RetrofitException.handleException(new FormatException()));
+                            callBack.onError(ApiException.handleException(new FormatException()));
                         }
                     }
                 }
@@ -1308,7 +1308,7 @@ public final class Novate {
             } catch (Exception e) {
                 e.printStackTrace();
                 if (callBack != null) {
-                    callBack.onError(RetrofitException.handleException(e));
+                    callBack.onError(ApiException.handleException(e));
                 }
             }
         }

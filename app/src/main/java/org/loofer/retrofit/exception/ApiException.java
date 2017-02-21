@@ -28,7 +28,7 @@ import retrofit2.adapter.rxjava.HttpException;
  * <p>
  * ==========================================================
  */
-public class RetrofitException {
+public class ApiException {
 
     private static final int UNAUTHORIZED = 401;           //连接失败
     private static final int FORBIDDEN = 403;              //禁止访问

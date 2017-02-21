@@ -17,6 +17,7 @@
 package org.loofer.retrofit.cookie;
 
 
+import org.loofer.retrofit.cache.CookieCache;
 
 import java.util.ArrayList;
 import java.util.Iterator;

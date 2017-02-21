@@ -3,7 +3,7 @@ package org.loofer.retrofit;
 import android.content.Context;
 import android.util.Log;
 
-import com.tamic.novate.util.NetworkUtil;
+import org.loofer.retrofit.utils.NetworkUtil;
 
 import java.io.IOException;
 

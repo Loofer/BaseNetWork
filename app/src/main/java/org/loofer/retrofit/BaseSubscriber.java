@@ -3,13 +3,13 @@ package org.loofer.retrofit;
 
 import android.util.Log;
 
-import org.loofer.retrofit.exception.RetrofitException;
+import org.loofer.retrofit.exception.ApiException;
 
 import rx.Subscriber;
 
 /**
  * ============================================================
- * 版权： x x 版权所有（c）2016
+ * 版权： x x 版权所有（c）2017
  * <p>
  * 作者：Loofer
  * 版本：1.0
@@ -33,7 +33,7 @@ public abstract class BaseSubscriber<T> extends Subscriber<T> {
             onError((Throwable) e);
         } else {
             Log.e(TAG, "e !instanceof Throwable");
-            onError(new Throwable(e, RetrofitException.ERROR.UNKNOWN));
+            onError(new Throwable(e, ApiException.ERROR.UNKNOWN));
         }
     }
 
