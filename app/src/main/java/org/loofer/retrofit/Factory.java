@@ -164,7 +164,7 @@ public final class Factory {
         return (T) apiManager.executeGet(url, maps)
                 .compose(schedulersTransformer)
                 .compose(handleErrTransformer())
-                .subscribe(new NovateSubscriber<T>(mContext, finalNeedType, callBack));
+                .subscribe(new ApiSubscriber<T>(mContext, finalNeedType, callBack));
     }
 
     /**
@@ -329,7 +329,7 @@ public final class Factory {
         return (T) apiManager.executePost(url, parameters)
                 .compose(schedulersTransformer)
                 .compose(handleErrTransformer())
-                .subscribe(new NovateSubscriber<T>(mContext, finalNeedType, callBack));
+                .subscribe(new ApiSubscriber<T>(mContext, finalNeedType, callBack));
     }
 
 
@@ -364,7 +364,7 @@ public final class Factory {
         return (T) apiManager.postForm(url, fields)
                 .compose(schedulersTransformer)
                 .compose(handleErrTransformer())
-                .subscribe(new NovateSubscriber<T>(mContext, finalNeedType, callBack));
+                .subscribe(new ApiSubscriber<T>(mContext, finalNeedType, callBack));
     }
 
 
@@ -399,7 +399,7 @@ public final class Factory {
         return (T) apiManager.executePostBody(url, body)
                 .compose(schedulersTransformer)
                 .compose(handleErrTransformer())
-                .subscribe(new NovateSubscriber<T>(mContext, finalNeedType, callBack));
+                .subscribe(new ApiSubscriber<T>(mContext, finalNeedType, callBack));
     }
 
 
@@ -436,7 +436,7 @@ public final class Factory {
         return (T) apiManager.postRequestBody(url, Utils.createJson(jsonStr))
                 .compose(schedulersTransformer)
                 .compose(handleErrTransformer())
-                .subscribe(new NovateSubscriber<T>(mContext, finalNeedType, callBack));
+                .subscribe(new ApiSubscriber<T>(mContext, finalNeedType, callBack));
     }
 
     /**
@@ -471,7 +471,7 @@ public final class Factory {
         return (T) apiManager.executeDelete(url, (Map<String, Object>) maps)
                 .compose(schedulersTransformer)
                 .compose(handleErrTransformer())
-                .subscribe(new NovateSubscriber<T>(mContext, finalNeedType, callBack));
+                .subscribe(new ApiSubscriber<T>(mContext, finalNeedType, callBack));
     }
 
     /**
@@ -507,7 +507,7 @@ public final class Factory {
         return (T) apiManager.executePut(url, (Map<String, Object>) parameters)
                 .compose(schedulersTransformer)
                 .compose(handleErrTransformer())
-                .subscribe(new NovateSubscriber<T>(mContext, finalNeedType, callBack));
+                .subscribe(new ApiSubscriber<T>(mContext, finalNeedType, callBack));
     }
 
 
@@ -1221,17 +1221,17 @@ public final class Factory {
 
 
     /**
-     * NovateSubscriber
+     * ApiSubscriber
      *
      * @param <T>
      */
-    class NovateSubscriber<T> extends BaseSubscriber<ResponseBody> {
+    class ApiSubscriber<T> extends BaseSubscriber<ResponseBody> {
 
         private ResponseCallBack<T> callBack;
 
         private Type finalNeedType;
 
-        public NovateSubscriber(Context context, Type finalNeedType, ResponseCallBack<T> callBack) {
+        public ApiSubscriber(Context context, Type finalNeedType, ResponseCallBack<T> callBack) {
             this.callBack = callBack;
 
             this.finalNeedType = finalNeedType;
