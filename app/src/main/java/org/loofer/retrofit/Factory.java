@@ -17,6 +17,7 @@ import org.loofer.retrofit.exception.ApiException;
 import org.loofer.retrofit.exception.FormatException;
 import org.loofer.retrofit.exception.ServerException;
 import org.loofer.retrofit.request.Request;
+import org.loofer.retrofit.transformer.HttpResponseFunc;
 import org.loofer.retrofit.utils.FileUtil;
 import org.loofer.retrofit.utils.Utils;
 
@@ -235,26 +236,6 @@ public final class Factory {
         };
     }
 
-    private static class HttpResponseFunc<T> implements Func1<java.lang.Throwable, Observable<T>> {
-        @Override
-        public Observable<T> call(java.lang.Throwable t) {
-            return Observable.error(ApiException.handleException(t));
-        }
-    }
-
-    private class HandleFuc<T> implements Func1<HttpResult<T>, T> {
-        @Override
-        public T call(HttpResult<T> response) {
-            if (response == null || (response.getData() == null && response.getResult() == null)) {
-                throw new JsonParseException("后端数据不对");
-            }
-            /*if (!response.isOk()) {
-                throw new RuntimeException(response.getCode() + "" + response.getMsg() != null ? response.getMsg() : "");
-            }
-*/
-            return response.getData();
-        }
-    }
 
     /**
      * Retroift get
