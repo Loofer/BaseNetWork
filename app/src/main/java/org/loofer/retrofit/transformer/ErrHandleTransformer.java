@@ -3,6 +3,8 @@ package org.loofer.retrofit.transformer;
 import org.loofer.retrofit.HttpResult;
 
 import rx.Observable;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * ============================================================
@@ -22,8 +24,17 @@ import rx.Observable;
 public class ErrHandleTransformer<T> implements Observable.Transformer<HttpResult<T>, T> {
     @Override
     public Observable<T> call(Observable<HttpResult<T>> observable) {
-        return ((Observable) observable)
-                //.map(new HandleFuc<T>())
-                .onErrorResumeNext(new HttpResponseFunc<T>());
+        return observable
+                .map(new Func1<HttpResult<T>, T>() {
+                    @Override
+                    public T call(HttpResult<T> httpResult) {
+                        if (httpResult.getNewslist() != null) {
+                            return httpResult.getNewslist();
+                        }
+                        return null;
+                    }
+                })
+                .subscribeOn(Schedulers.io());
+//                .onErrorResumeNext(new HttpResponseFunc<T>());
     }
 }

@@ -1,7 +1,14 @@
 package org.loofer.service;
 
+import org.loofer.bean.News;
+import org.loofer.retrofit.HttpResult;
+
+import java.util.List;
+
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**
@@ -24,5 +31,11 @@ public interface DoubanService {
     @POST("{url}")
     Observable<?> executePostBody(
             @Path("url") String url);
+
+    @GET("test.json")
+    Observable<HttpResult<List<News>>> getNews(@Query("key") String key,
+                                               @Query("page") int page,
+                                               @Query("num") int num);
+
 
 }

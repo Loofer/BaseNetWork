@@ -15,8 +15,7 @@ public class HttpResult<T> {
     /*错误信息:msg, error, message*/
     private String msg, error, message;
     /*真实数据 data或者result*/
-    private T data, result;
-
+    private T data, result, newslist;
 
 
     public int getCode() {
@@ -69,6 +68,14 @@ public class HttpResult<T> {
 
     public void setResult(T result) {
         this.result = result;
+    }
+
+    public T getNewslist() {
+        return newslist;
+    }
+
+    public void setNewslist(T newslist) {
+        this.newslist = newslist;
     }
 
     @Override

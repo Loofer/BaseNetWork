@@ -1,7 +1,5 @@
 package org.loofer.retrofit.transformer;
 
-import org.loofer.retrofit.R;
-
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -24,7 +22,16 @@ import rx.schedulers.Schedulers;
 public class SchedulerTransformer<T> implements Observable.Transformer<T, T> {
     @Override
     public Observable<T> call(Observable<T> observable) {
-        return (Observable<T>) observable.subscribeOn(Schedulers.io())
+        return observable.subscribeOn(Schedulers.io())
+//                .map(new Func1<HttpResult<T>, T>() {
+//                    @Override
+//                    public T call(HttpResult<T> tHttpResult) {
+//                        if (tHttpResult.getNewslist() != null)
+//                            return tHttpResult.getNewslist();
+//                        else
+//                            throw new OtherException(tHttpResult.getError(), tHttpResult.getMessage());
+//                    }
+//                })
                 .unsubscribeOn(Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread());
     }

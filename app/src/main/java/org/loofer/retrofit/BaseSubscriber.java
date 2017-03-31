@@ -3,7 +3,14 @@ package org.loofer.retrofit;
 
 import android.util.Log;
 
-import org.loofer.retrofit.exception.ApiException;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.loofer.retrofit.exception.ForceLogoutException;
+import org.loofer.retrofit.exception.JsonException;
+import org.loofer.retrofit.exception.NoDataException;
+import org.loofer.retrofit.exception.OtherException;
+
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 
 import rx.Subscriber;
 
@@ -27,13 +34,43 @@ public abstract class BaseSubscriber<T> extends Subscriber<T> {
 
     @Override
     public void onError(java.lang.Throwable e) {
-        Log.v(TAG, e.getMessage());
-        if (e instanceof Throwable) {
-            Log.e(TAG, "--> e instanceof Throwable");
-            onError((Throwable) e);
+        if (e instanceof NoDataException) {
+            // TODO: 2017/3/30 nodata
+//            onFailure((NoDataException) e);
+        } else if (e instanceof JsonException) {
+            Log.e("BlueJsonException", e.getMessage());
+        } else if (e instanceof ForceLogoutException) {
+            // TODO: 2017/3/30  强制退出
+        } else if (e instanceof ConnectException) {
+            //getString("连接超时")
+            onFailure("", "连接失败");
+        } else if (e instanceof javax.net.ssl.SSLHandshakeException) {
+            //getString("证书验证失败")
+            onFailure("", "证书验证失败");
+        } else if (e instanceof java.security.cert.CertPathValidatorException) {
+            //getString("证书路径没找到")
+            onFailure("", "证书路径没找到");
+        } else if (e instanceof ConnectTimeoutException) {
+            //getString("连接超时")
+            onFailure("", "连接超时");
+        } else if (e instanceof java.net.SocketTimeoutException) {
+            //getString("连接超时")
+            onFailure("", "连接超时");
+        } else if (e instanceof java.lang.ClassCastException) {
+            //getString("连接超时")
+            onFailure("", "连接超时");
+        } else if (e instanceof UnknownHostException) {
+            //getString("请求地址有问题")
+            onFailure("", "请求地址有问题");
+        } else if (e instanceof NullPointerException) {
+            //getString("数据有空")
+            onFailure("", "数据有空");
+        } else if (e instanceof OtherException) {
+            // 其他错误
+            onFailure(((OtherException) e).getErrorCode(), ((OtherException) e).getErrorMessage());
         } else {
-            Log.e(TAG, "e !instanceof Throwable");
-            onError(new Throwable(e, ApiException.ERROR.UNKNOWN));
+            //其他未知异常
+            onFailure("", "未知错误");
         }
     }
 
@@ -52,6 +89,13 @@ public abstract class BaseSubscriber<T> extends Subscriber<T> {
         // todo some common as  dismiss loadding
     }
 
-    public abstract void onError(Throwable e);
+    @Override
+    public void onNext(T t) {
+        onSuccess(t);
+    }
+
+    protected abstract void onFailure(String errorCode, String errorMsg);
+
+    protected abstract void onSuccess(T data);
 
 }

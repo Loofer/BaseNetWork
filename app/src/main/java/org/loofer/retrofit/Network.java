@@ -1,9 +1,8 @@
 package org.loofer.retrofit;
 
-import android.text.TextUtils;
 import android.util.Log;
 
-import org.loofer.retrofit.interceptor.DefaultHeaderInterceptor;
+import org.loofer.retrofit.interceptor.ExceptionInterceptor;
 import org.loofer.retrofit.utils.Preconditions;
 import org.loofer.retrofit.utils.Strings;
 
@@ -93,7 +92,7 @@ public class Network {
                     HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
                         @Override
                         public void log(String message) {
-                            Log.d(TAG,message);
+                            Log.d(TAG, message);
                         }
                     });
                     loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -107,9 +106,12 @@ public class Network {
                     headerBuilder.add("Accept", accept);
                 }
 
-                DefaultHeaderInterceptor headerInterceptor = new DefaultHeaderInterceptor(headerBuilder);
+//                DefaultHeaderInterceptor headerInterceptor = new DefaultHeaderInterceptor(headerBuilder);
+//                builder.addInterceptor(headerInterceptor);
 
-                builder.addInterceptor(headerInterceptor);
+                ExceptionInterceptor exceptionInterceptor = new ExceptionInterceptor();
+                builder.addInterceptor(exceptionInterceptor);
+
                 mClient = builder.build();
             }
         }
@@ -147,22 +149,23 @@ public class Network {
         private Headers.Builder defaultHeader() {
 //            final AppInfo appInfo = SupportApp.appInfo();
             Headers.Builder builder = new Headers.Builder();
-            builder.add("Content-Encoding", "gzip")
+            builder.add("Content-Encoding", "gzip");
 //                    .add("X-Client-Build", String.valueOf(appInfo.versionCode))
 //                    .add("X-Client-Version", appInfo.version)
 //                    .add("X-Client", appInfo.deviceId)
 //                    .add("X-Language-Code", appInfo.languageCode)
-                    .add("X-Client-Build", String.valueOf("14254"))
-                    .add("X-Client-Version", "454564")
-                    .add("X-Client", "454")
-                    .add("X-Language-Code", "45645")
-                    .add("X-Client-Type", "android");
+
+//                    .add("X-Client-Build", String.valueOf("14254"))
+//                    .add("X-Client-Version", "454564")
+//                    .add("X-Client", "454")
+//                    .add("X-Language-Code", "45645")
+//                    .add("X-Client-Type", "android");
 
 //            final String channel = appInfo.channel;
-            final String channel = "sjdkflj";
-            if (!TextUtils.isEmpty(channel)) {
-                builder.add("X-Client-Channel", channel);
-            }
+//            final String channel = "sjdkflj";
+//            if (!TextUtils.isEmpty(channel)) {
+//                builder.add("X-Client-Channel", channel);
+//            }
             return builder;
         }
     }
